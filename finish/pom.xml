@@ -10,7 +10,7 @@
         <version>RELEASE</version>
   </parent>
   <groupId>io.openliberty.guides</groupId>
-  <artifactId>microprofile-rest-client</artifactId>
+  <artifactId>demo.weather</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>war</packaging>
     <properties>
@@ -40,92 +40,12 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- For tests-->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-rs-client</artifactId>
-            <version>3.2.6</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-rs-extension-providers</artifactId>
-            <version>3.2.6</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>javax.json</artifactId>
-            <version>1.0.4</version>
-            <scope>test</scope>
-        </dependency>
         <!-- Open Liberty features -->
         <dependency>
             <groupId>io.openliberty.features</groupId>
-            <artifactId>jaxrs-2.1</artifactId>
+            <artifactId>microProfile-2.2</artifactId>
             <type>esa</type>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.openliberty.features</groupId>
-            <artifactId>jsonp-1.1</artifactId>
-            <type>esa</type>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.openliberty.features</groupId>
-            <artifactId>cdi-2.0</artifactId>
-            <type>esa</type>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.openliberty.features</groupId>
-            <artifactId>mpConfig-1.3</artifactId>
-            <type>esa</type>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.openliberty.features</groupId>
-            <artifactId>mpRestClient-1.2</artifactId>
-            <type>esa</type>
-            <scope>provided</scope>
-        </dependency>
-        <!-- Java utility classes -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.0</version>
-        </dependency>
-        <!-- Support for JDK 9 and above -->
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>2.3.1</version>
-	    <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-core</artifactId>
-            <version>2.3.0.1</version>
-	    <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-            <version>2.3.2</version>
-	    <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-            <version>1.1.1</version>
-	    <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -139,25 +59,6 @@
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                     <packagingExcludes>pom.xml</packagingExcludes>
                 </configuration>
-            </plugin>
-            <!-- Plugin to run unit tests -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M1</version>
-                <executions>
-                    <execution>
-                        <phase>test</phase>
-                        <id>default-test</id>
-                        <configuration>
-                            <excludes>
-                                <exclude>**/it/**</exclude>
-                            </excludes>
-                            <reportsDirectory>${project.build.directory}/test-reports/unit
-                            </reportsDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <!-- Enable liberty-maven plugin -->
             <plugin>
