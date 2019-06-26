@@ -1,0 +1,8 @@
+path: demo.weather.war
+buildpack: liberty-for-java
+
+applications:
+- name: openlibertyday
+  memory: 512M
+  host: serverconfig
+  domain: mybluemix.net
