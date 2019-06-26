@@ -1,5 +1,7 @@
 package demo.weather;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -15,6 +17,11 @@ import javax.ws.rs.core.MediaType;
 @Path("forecast")
 public class ForecastResource {
 	private final static Logger log = Logger.getLogger("demo.weather");
+	private final static Map<String, JsonObject> cache = new HashMap<String, JsonObject>();
+
+	static {
+		cache.put("00000", MoonWeather.simulatedRealData());
+	}
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
@@ -22,22 +29,35 @@ public class ForecastResource {
 		// Turn on all logging for development
 		log.setLevel(Level.ALL);
 
-		JsonObjectBuilder builder = Json.createObjectBuilder();
-		if (checkZipValueIsSetOrSetResponseError(zip, builder)) {
-			ZipToGeoPointService zipData = new ZipToGeoPointService(zip);
-			if (zipResolveIsGoodOrSetResposneError(zipData, builder)) {
-				builder.add("zip", zip);
-				builder.add("city", zipData.getCity());
-				builder.add("geopoint", zipData.getGeopoint());
-				ForecastService forecast = new ForecastService(zipData.getGeopoint());
-				if (forecastResolvesOrSetResponseError(forecast, builder)) {
-					builder.add("cwa", forecast.getCWA());
-					builder.add("periods", forecast.getPeriods());
+		JsonObject response = null;
+		if (cache.containsKey(zip)) {
+			log.info("Successful cache hit for zip " + zip);
+			response = cache.get(zip);
+		} else {
+			boolean shouldCache = false;
+			JsonObjectBuilder builder = Json.createObjectBuilder();
+			if (checkZipValueIsSetOrSetResponseError(zip, builder)) {
+				ZipToGeoPointService zipData = new ZipToGeoPointService(zip);
+				if (zipResolveIsGoodOrSetResposneError(zipData, builder)) {
+					builder.add("zip", zip);
+					builder.add("city", zipData.getCity());
+					builder.add("geopoint", zipData.getGeopoint());
+					ForecastService forecast = new ForecastService(zipData.getGeopoint());
+					if (forecastResolvesOrSetResponseError(forecast, builder)) {
+						builder.add("cwa", forecast.getCWA());
+						builder.add("periods", forecast.getPeriods());
+						shouldCache = true;
+					}
 				}
+			}
+			response = builder.build();
+			if (shouldCache) {
+				cache.put(zip, response);
+				log.info("Cached response for zip " + zip);
 			}
 		}
 
-		return builder.build();
+		return response;
 	}
 
 	private boolean checkZipValueIsSetOrSetResponseError(String zip, JsonObjectBuilder builder) {
