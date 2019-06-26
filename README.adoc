@@ -1,2 +1,2 @@
-From /finish, run:
+run:
 mvn install liberty:start-server
