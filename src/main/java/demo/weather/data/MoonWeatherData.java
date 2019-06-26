@@ -1,11 +1,11 @@
-package demo.weather;
+package demo.weather.data;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 
-public class MoonWeather {
+public class MoonWeatherData {
 
 	public static JsonObject simulatedRealData() {
 		JsonObjectBuilder builder = Json.createObjectBuilder();

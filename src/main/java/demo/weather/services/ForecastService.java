@@ -1,4 +1,4 @@
-package demo.weather;
+package demo.weather.services;
 
 import java.util.logging.Logger;
 

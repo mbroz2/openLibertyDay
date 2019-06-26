@@ -14,13 +14,17 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import demo.weather.data.MoonWeatherData;
+import demo.weather.services.ForecastService;
+import demo.weather.services.ZipToGeoPointService;
+
 @Path("forecast")
 public class ForecastResource {
 	private final static Logger log = Logger.getLogger("demo.weather");
 	private final static Map<String, JsonObject> cache = new HashMap<String, JsonObject>();
 
 	static {
-		cache.put("00000", MoonWeather.simulatedRealData());
+		cache.put("00000", MoonWeatherData.simulatedRealData());
 	}
 
 	@GET
@@ -34,29 +38,40 @@ public class ForecastResource {
 			log.info("Successful cache hit for zip " + zip);
 			response = cache.get(zip);
 		} else {
-			boolean shouldCache = false;
-			JsonObjectBuilder builder = Json.createObjectBuilder();
-			if (checkZipValueIsSetOrSetResponseError(zip, builder)) {
-				ZipToGeoPointService zipData = new ZipToGeoPointService(zip);
-				if (zipResolveIsGoodOrSetResposneError(zipData, builder)) {
-					builder.add("zip", zip);
-					builder.add("city", zipData.getCity());
-					builder.add("geopoint", zipData.getGeopoint());
-					ForecastService forecast = new ForecastService(zipData.getGeopoint());
-					if (forecastResolvesOrSetResponseError(forecast, builder)) {
-						builder.add("cwa", forecast.getCWA());
-						builder.add("periods", forecast.getPeriods());
-						shouldCache = true;
-					}
-				}
-			}
-			response = builder.build();
-			if (shouldCache) {
-				cache.put(zip, response);
-				log.info("Cached response for zip " + zip);
-			}
+			response = getUncachedForecast(zip);
 		}
 
+		return response;
+	}
+
+	/**
+	 * The forecast for the zip was not cached, go out on the network and resolve it
+	 * @param zip
+	 * @return
+	 */
+	private JsonObject getUncachedForecast(String zip) {
+		JsonObject response;
+		boolean shouldCache = false;
+		JsonObjectBuilder builder = Json.createObjectBuilder();
+		if (checkZipValueIsSetOrSetResponseError(zip, builder)) {
+			ZipToGeoPointService zipData = new ZipToGeoPointService(zip);
+			if (zipResolveIsGoodOrSetResposneError(zipData, builder)) {
+				builder.add("zip", zip);
+				builder.add("city", zipData.getCity());
+				builder.add("geopoint", zipData.getGeopoint());
+				ForecastService forecast = new ForecastService(zipData.getGeopoint());
+				if (forecastResolvesOrSetResponseError(forecast, builder)) {
+					builder.add("cwa", forecast.getCWA());
+					builder.add("periods", forecast.getPeriods());
+					shouldCache = true;
+				}
+			}
+		}
+		response = builder.build();
+		if (shouldCache) {
+			cache.put(zip, response);
+			log.info("Cached response for zip " + zip);
+		}
 		return response;
 	}
 
