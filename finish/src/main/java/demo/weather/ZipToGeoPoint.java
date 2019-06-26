@@ -15,6 +15,8 @@ public class ZipToGeoPoint {
 	private static final String ZIP_TO_GEO_SERVICE = "https://public.opendatasoft.com/api/records/1.0/search/?dataset=us-zip-code-latitude-and-longitude&facet=state&facet=timezone&facet=dst&q=";
 
 	private String zipcode;
+	private String city;
+	private String geopoint = "0,0";
 
 	public ZipToGeoPoint(String zipcode) {
 		this.zipcode = zipcode;
@@ -25,12 +27,20 @@ public class ZipToGeoPoint {
 	 * 
 	 * @return A String geopoint (latitude,longitude)
 	 */
-	public String resolve() {
+	public void resolve() {
 		String targetUrl = ZIP_TO_GEO_SERVICE + zipcode;
 		log.fine("Resolve zip to geo URL: " + targetUrl);
 
 		JsonObject urlResponse = getJsonObjectFromURL(targetUrl);
-		return findGeopoint(urlResponse);
+		findGeopoint(urlResponse);
+	}
+
+	public String getGeopoint() {
+		return geopoint;
+	}
+
+	public String getCity() {
+		return city;
 	}
 
 	private JsonObject getJsonObjectFromURL(String targetUrl) {
@@ -52,25 +62,39 @@ public class ZipToGeoPoint {
 	 * @param jObj
 	 * @return
 	 */
-	private String findGeopoint(JsonObject jObj) {
+	private void findGeopoint(JsonObject jObj) {
 		JsonArray records = jObj.getJsonArray("records");
 		for (int i = 0; i < records.size(); i++) {
 			JsonObject zipObj = records.getJsonObject(i);
 			JsonObject fields = zipObj.getJsonObject("fields");
 			if (zipcode.equals(fields.getString("zip"))) {
-				return asGeoPointString(fields);
+				city = getCityState(fields);
+				geopoint = getGeopoint(fields);
+				return;
 			}
 		}
 
 		log.severe("Could not resolve zipcode " + zipcode + " to a geopoint, returning 0,0");
-		return "0,0";
+		return;
+	}
+
+	/**
+	 * @param fields
+	 * @return String of "city, state"
+	 */
+	private String getCityState(JsonObject fields) {
+		String city = fields.getString("city");
+		String state = fields.getString("state");
+		log.info("fields.city:" + city);
+		log.info("fields.state:" + state);
+		return city + ", " + state;
 	}
 
 	/**
 	 * @param fields
 	 * @return String of "latitude,longitude"
 	 */
-	private String asGeoPointString(JsonObject fields) {
+	private String getGeopoint(JsonObject fields) {
 		JsonNumber latitude = fields.getJsonNumber("latitude");
 		JsonNumber longitude = fields.getJsonNumber("longitude");
 		log.info("fields.latitude:" + latitude);

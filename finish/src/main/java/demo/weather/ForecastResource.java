@@ -4,6 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.json.Json;
+import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.ws.rs.GET;
@@ -24,16 +25,25 @@ public class ForecastResource {
 		// Turn on all logging for development
 		log.setLevel(Level.ALL);
 
-		String geopoint = new ZipToGeoPoint(zip).resolve();
-		String forecast = getTodaysForecast(geopoint);
+		if (zip == null || zip.isEmpty()) {
+			JsonObjectBuilder builder = Json.createObjectBuilder();
+			builder.add("error", "zip value is null. Specify with query param ?zip=00000");
+			return builder.build();
+		}
+
+		ZipToGeoPoint zipData = new ZipToGeoPoint(zip);
+		zipData.resolve();
 
 		JsonObjectBuilder builder = Json.createObjectBuilder();
-		builder.add("forecast", forecast);
+		builder.add("zip", zip);
+		builder.add("city", zipData.getCity());
+		builder.add("geopoint", zipData.getGeopoint());
+		getTodaysForecast(zipData.getGeopoint(), builder);
 
 		return builder.build();
 	}
 
-	private String getTodaysForecast(String geopoint) {
+	private void getTodaysForecast(String geopoint, JsonObjectBuilder builder) {
 		// e.g. https://api.weather.gov/points/30.5039,-97.8242
 		// good : "https://api.weather.gov/points/30.5013,-97.8309";
 		String targetUrl = "http://api.weather.gov/points/" + geopoint;
@@ -47,13 +57,17 @@ public class ForecastResource {
 		response.close();
 		client.close();
 
+		builder.add("cwa", jObj.getJsonObject("properties").get("cwa"));
 		String forecastURL = getForecastURL(jObj);
 		log.info("resolving forecast URL: " + forecastURL);
-
-		return getForecastFromURL(forecastURL);
+		getForecastFromURL(forecastURL, builder);
 	}
 
-	private String getForecastFromURL(String forecastURL) {
+	private String getForecastURL(JsonObject jObj) {
+		return jObj.getJsonObject("properties").getString("forecast");
+	}
+
+	private void getForecastFromURL(String forecastURL, JsonObjectBuilder builder) {
 		Client client = RestClientFactory.getRestClient();
 
 		Response response = client.target(forecastURL).request().get();
@@ -62,14 +76,8 @@ public class ForecastResource {
 		response.close();
 		client.close();
 
-		JsonObject curForecast = jObj.getJsonObject("properties").getJsonArray("periods").getJsonObject(0);
-		String forecast = curForecast.getString("name") + " - " + curForecast.getString("detailedForecast");
-		System.out.println("Current forecast: " + forecast);
-		return forecast;
-	}
-
-	private String getForecastURL(JsonObject jObj) {
-		return jObj.getJsonObject("properties").getString("forecast");
+		JsonArray periods = jObj.getJsonObject("properties").getJsonArray("periods");
+		builder.add("periods", periods);
 	}
 
 }
