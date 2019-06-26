@@ -9,7 +9,7 @@
         <artifactId>liberty-maven-app-parent</artifactId>
         <version>RELEASE</version>
   </parent>
-  <groupId>io.openliberty.guides</groupId>
+  <groupId>demo.openliberty</groupId>
   <artifactId>demo.weather</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>war</packaging>
@@ -78,6 +78,7 @@
                         <default.http.port>${testServerHttpPort}</default.http.port>
                         <default.https.port>${testServerHttpsPort}</default.https.port>
                     </bootstrapProperties>
+                    <stripVersion>true</stripVersion>
                 </configuration>
                 <executions>
                     <execution>
@@ -95,46 +96,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <!-- Plugin to run functional tests -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.0.0-M1</version>
-                <executions>
-                    <execution>
-                        <phase>integration-test</phase>
-                        <id>integration-test</id>
-                        <goals>
-                            <goal>integration-test</goal>
-                        </goals>
-                        <configuration>
-                            <includes>
-                                <include>**/it/**/*.java</include>
-                            </includes>
-                            <!-- tag::system-props[] -->
-                            <systemPropertyVariables>
-                     			<liberty.test.port>${testServerHttpPort}
-                                 </liberty.test.port>
-                            </systemPropertyVariables>
-                            <!-- end::system-props[] -->
-                            <runOrder>reversealphabetical</runOrder>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>verify-results</id>
-                        <goals>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <summaryFile>
-                    ${project.build.directory}/test-reports/it/failsafe-summary.xml
-                    </summaryFile>
-                    <reportsDirectory>${project.build.directory}/test-reports/it
-                    </reportsDirectory>
-                </configuration>
             </plugin>
         </plugins>
     </build>

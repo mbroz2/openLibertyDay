@@ -1,4 +1,4 @@
-package demo.weather;
+package demo.weather.services;
 
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
