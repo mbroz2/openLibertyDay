@@ -4,16 +4,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.json.Json;
-import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.client.Client;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 @Path("forecast")
 public class ForecastResource {
@@ -25,59 +22,47 @@ public class ForecastResource {
 		// Turn on all logging for development
 		log.setLevel(Level.ALL);
 
-		if (zip == null || zip.isEmpty()) {
-			JsonObjectBuilder builder = Json.createObjectBuilder();
-			builder.add("error", "zip value is null. Specify with query param ?zip=00000");
-			return builder.build();
-		}
-
-		ZipToGeoPoint zipData = new ZipToGeoPoint(zip);
-		zipData.resolve();
-
 		JsonObjectBuilder builder = Json.createObjectBuilder();
-		builder.add("zip", zip);
-		builder.add("city", zipData.getCity());
-		builder.add("geopoint", zipData.getGeopoint());
-		getTodaysForecast(zipData.getGeopoint(), builder);
+		if (checkZipValueIsSetOrSetResponseError(zip, builder)) {
+			ZipToGeoPointService zipData = new ZipToGeoPointService(zip);
+			if (zipResolveIsGoodOrSetResposneError(zipData, builder)) {
+				builder.add("zip", zip);
+				builder.add("city", zipData.getCity());
+				builder.add("geopoint", zipData.getGeopoint());
+				ForecastService forecast = new ForecastService(zipData.getGeopoint());
+				if (forecastResolvesOrSetResponseError(forecast, builder)) {
+					builder.add("cwa", forecast.getCWA());
+					builder.add("periods", forecast.getPeriods());
+				}
+			}
+		}
 
 		return builder.build();
 	}
 
-	private void getTodaysForecast(String geopoint, JsonObjectBuilder builder) {
-		// e.g. https://api.weather.gov/points/30.5039,-97.8242
-		// good : "https://api.weather.gov/points/30.5013,-97.8309";
-		String targetUrl = "http://api.weather.gov/points/" + geopoint;
-		log.info("resolving points URL: " + targetUrl);
-
-		Client client = RestClientFactory.getRestClient();
-
-		Response response = client.target(targetUrl).request().get();
-		JsonObject jObj = response.readEntity(JsonObject.class);
-
-		response.close();
-		client.close();
-
-		builder.add("cwa", jObj.getJsonObject("properties").get("cwa"));
-		String forecastURL = getForecastURL(jObj);
-		log.info("resolving forecast URL: " + forecastURL);
-		getForecastFromURL(forecastURL, builder);
+	private boolean checkZipValueIsSetOrSetResponseError(String zip, JsonObjectBuilder builder) {
+		if (zip == null || zip.isEmpty()) {
+			builder.add("error", "zip value is null. Specify with query param ?zip=00000");
+			return false;
+		} else {
+			return true;
+		}
 	}
 
-	private String getForecastURL(JsonObject jObj) {
-		return jObj.getJsonObject("properties").getString("forecast");
+	private boolean zipResolveIsGoodOrSetResposneError(ZipToGeoPointService zipData, JsonObjectBuilder builder) {
+		if (!zipData.resolve()) {
+			builder.add("error", "Unexpected error encountered while trying to resolve zip to geopoint");
+			return false;
+		}
+		return true;
 	}
 
-	private void getForecastFromURL(String forecastURL, JsonObjectBuilder builder) {
-		Client client = RestClientFactory.getRestClient();
-
-		Response response = client.target(forecastURL).request().get();
-		JsonObject jObj = response.readEntity(JsonObject.class);
-
-		response.close();
-		client.close();
-
-		JsonArray periods = jObj.getJsonObject("properties").getJsonArray("periods");
-		builder.add("periods", periods);
+	public boolean forecastResolvesOrSetResponseError(ForecastService forecast, JsonObjectBuilder builder) {
+		if (!forecast.resolve()) {
+			builder.add("error", "Unexpected error encountered while trying to resolve forecast");
+			return false;
+		}
+		return true;
 	}
 
 }

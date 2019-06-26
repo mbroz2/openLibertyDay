@@ -78,6 +78,7 @@
                         <default.http.port>${testServerHttpPort}</default.http.port>
                         <default.https.port>${testServerHttpsPort}</default.https.port>
                     </bootstrapProperties>
+                    <stripVersion>true</stripVersion>
                 </configuration>
                 <executions>
                     <execution>

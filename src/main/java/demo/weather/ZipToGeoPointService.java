@@ -8,8 +8,9 @@ import javax.json.JsonObject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Response;
 
-public class ZipToGeoPoint {
+public class ZipToGeoPointService {
 	private final static Logger log = Logger.getLogger("demo.weather");
+
 	// e.g.
 	// https://public.opendatasoft.com/api/records/1.0/search/?dataset=us-zip-code-latitude-and-longitude&facet=state&facet=timezone&facet=dst&q=78613
 	private static final String ZIP_TO_GEO_SERVICE = "https://public.opendatasoft.com/api/records/1.0/search/?dataset=us-zip-code-latitude-and-longitude&facet=state&facet=timezone&facet=dst&q=";
@@ -18,21 +19,28 @@ public class ZipToGeoPoint {
 	private String city;
 	private String geopoint = "0,0";
 
-	public ZipToGeoPoint(String zipcode) {
+	public ZipToGeoPointService(String zipcode) {
 		this.zipcode = zipcode;
 	}
 
 	/**
-	 * Returns a geopoint associated with the zip code.
+	 * Resolves the geopoint associated with the zip code.
 	 * 
-	 * @return A String geopoint (latitude,longitude)
+	 * @return true is the resolution was successful
 	 */
-	public void resolve() {
+	public boolean resolve() {
 		String targetUrl = ZIP_TO_GEO_SERVICE + zipcode;
 		log.fine("Resolve zip to geo URL: " + targetUrl);
 
-		JsonObject urlResponse = getJsonObjectFromURL(targetUrl);
-		findGeopoint(urlResponse);
+		try {
+			JsonObject urlResponse = getJsonObjectFromURL(targetUrl);
+			findGeopoint(urlResponse);
+			return true;
+		} catch (Exception e) {
+			log.severe("Unexpected Exception while resolving zip to geopoint: " + e.getMessage());
+		}
+
+		return false;
 	}
 
 	public String getGeopoint() {
