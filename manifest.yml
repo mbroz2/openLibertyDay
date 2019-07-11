@@ -2,7 +2,6 @@ path: demo.weather-1.0.0-SNAPSHOT.war
 buildpack: liberty-for-java
 
 applications:
-- name: openlibertyday
+- name: hackIBM19
   memory: 512M
-  host: openlibertyday
   domain: mybluemix.net

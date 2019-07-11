@@ -4,5 +4,4 @@ buildpack: liberty-for-java
 applications:
 - name: hackIBM
   memory: 512M
-  path: target/demo.weather-1.0.0-SNAPSHOT.war
   domain: mybluemix.net
