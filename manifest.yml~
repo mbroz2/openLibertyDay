@@ -1,7 +1,0 @@
-path: demo.weather-1.0.0-SNAPSHOT.war
-buildpack: liberty-for-java
-
-applications:
-- name: hackIBM
-  memory: 512M
-  domain: mybluemix.net
