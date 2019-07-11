@@ -1,40 +1,99 @@
+
 <html>
 
 <head>
   <link href="./css/demo.css" rel="stylesheet">
 </head>
 
-<body>
-  <h1>7-Day Forecast</h1>
-  <main id="main"> Zip Code: <input type="number" id="zipCode" value="78613">
-    <button type="button" onclick="getCoordinatesAndCity()">Get Forecast (browser-side)</button>
-    <button type="button" onclick="getWeeklyForecastBackend()">Get Forecast (server-side)</button>
-    <input type="file" accept="video/*;capture=camcorder">
-    <input type="file" accept="audio/*;capture=microphone">
+  <body>
+    <h1>Movie Poster Recognition Iteration 1.4</h1>
+    <p>capturing image</p>
+    <main id="proj">
+      <input type="file" accept="image/*;capture=camera" name="Accept Image">
+      <input type="file" accept="video/*;capture=camcorder" name="Accept Video">
+      <input type="file" accept="audio/*;capture=microphone" name="Accept Audio">
+      
+<!-- temporary deleted 
+    <script>
+      function update(stream) {
+      document.querySelector('video').src = stream.url;
+      }
+    </script>
+-->
 
-    <div id="city" style="display: none">City:</div>
-    <div id="coordinates" style="display: none">Coordinates:</div>
-    <div id="cwa" style="display: none">Center Weather Advisory:</div>
-
-    <br>
-
-  </main>
-  <h2>Movie Poster Recognition Iteration 1.2</h2>
-  <script src="./js/demo.js" type="text/javascript"></script>
-
-
-
-<device type="media" onchange="update(this.data)"></device>
-<video autoplay></video>
+<!-- working video recording>
+      <img src="">
+      <canvas style="display:none;"></canvas>   
+      <video autoplay></video>
+      <script>
+	const hdConstraints = {
+	video: {width: {min: 1280}, height: {min: 720}}
+	};
+	const constraints = {video:true};
+	const video = document.querySelector('video');
+	navigator.mediaDevices.getUserMedia(hdConstraints).
+	then((stream) => {video.srcObject = stream});
+      </script>
+    -->
+<video id="player" controls autoplay></video>
+<button class="button" id="capture" >Capture</button>
+<canvas id="canvas" width=320 height=240></canvas>
 <script>
-  function update(stream) {
-    document.querySelector('video').src = stream.url;
-  }
+  const player = document.getElementById('player');
+  const canvas = document.getElementById('canvas');
+  const context = canvas.getContext('2d');
+  const captureButton = document.getElementById('capture');
+  
+  const constraints = {
+  video: true,
+  };
+  
+  captureButton.addEventListener('click', () => {
+  context.drawImage(player, 0, 0, canvas.width, canvas.height);
+  });
+    
+  navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+  // Attach the video stream to the video element and autoplay.
+  player.srcObject = stream;
+  });
 </script>
 
 
 
+    <!-- screen capture functionality in i1.3  -->  
+    <!--
+    <img src="">
+    <canvas style="display:none;"></canvas>
+    
+	<script>
+	  const captureVideoButton = document.querySelector('#screenshot.capture-button');
+	  const screenshotButton = document.querySelector('#screenshot-button');
+	  const img = document.querySelector('#screenshot img');
+	  const video = document.querySelector('#screenshot video');
+	  const canvas = document.createElement('canvas');
+	  
+	  captureVideoButton.onclick = function() {
+	  navigator.mediaDevices.getUserMedia(constraints).
+	  then(handleSuccess).catch(handleError);
+	  };
+	  
+	  screenshotButton.onclick = video.onclick = function() {
+          canvas.width = video.videoWidth;
+	  canvas.height = video.videoHeight;
+	  canvas.getContext('2d').drawImage(video, 0, 0);
+	  // Other browsers will fall back to image/png
+	  img.src = canvas.toDataURL('image/webp');
+	  };
+	  
+	  function handleSuccess(stream) {
+	  screenshotButton.disabled = false;
+	  video.srcObject = stream;
+	  }
+	</script>
+	-->
 
 
-</body>
+
+
+  </body>
 </html>

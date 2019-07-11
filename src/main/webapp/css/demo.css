@@ -1,4 +1,26 @@
+
 table, th, td {
     border: 1px solid black;
     text-align: center;
+    
+}
+
+h1 {
+  color: blue;
+  background-color: yellow;
+  border: 1px solid black;
+}
+
+p {
+  color: red;
+}
+.button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
 }
