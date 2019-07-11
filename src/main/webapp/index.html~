@@ -1,0 +1,40 @@
+<html>
+
+<head>
+  <link href="./css/demo.css" rel="stylesheet">
+</head>
+
+<body>
+  <h1>7-Day Forecast</h1>
+  <main id="main"> Zip Code: <input type="number" id="zipCode" value="78613">
+    <button type="button" onclick="getCoordinatesAndCity()">Get Forecast (browser-side)</button>
+    <button type="button" onclick="getWeeklyForecastBackend()">Get Forecast (server-side)</button>
+    <input type="file" accept="video/*;capture=camcorder">
+    <input type="file" accept="audio/*;capture=microphone">
+
+    <div id="city" style="display: none">City:</div>
+    <div id="coordinates" style="display: none">Coordinates:</div>
+    <div id="cwa" style="display: none">Center Weather Advisory:</div>
+
+    <br>
+
+  </main>
+  <h2>Movie Poster Recognition Iteration 1.2</h2>
+  <script src="./js/demo.js" type="text/javascript"></script>
+
+
+
+<device type="media" onchange="update(this.data)"></device>
+<video autoplay></video>
+<script>
+  function update(stream) {
+    document.querySelector('video').src = stream.url;
+  }
+</script>
+
+
+
+
+
+</body>
+</html>
